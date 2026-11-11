@@ -34,15 +34,26 @@ def submit_selection(event: dict, actor_id: str, media_ids: list, service_codes:
     Returns the new selection. Raises SelectionError on any rule violation,
     and in that case leaves the event unchanged.
     """
+    # REQ-SEL-06:
     if actor_id != event.get("client_id"):
         raise SelectionError("FORBIDDEN")
+    
+    # REQ-SEL-01:
     if not isinstance(media_ids, list) or len(media_ids) == 0:
         raise SelectionError("SELECTION_EMPTY")
+    
+    # REQ-SEL-05:
+    for media_id in media_ids:
+        if media_ids.count(media_id) > 1:
+            raise SelectionError("DUPLICATE_MEDIA")
+        
+    # REQ-SEL-03:
     enabled = available_services(event)
     for code in service_codes:
         if code not in enabled:
             raise SelectionError("SERVICE_NOT_AVAILABLE")
-
+        
+    # REQ-SEL-02:
     medias = _media_ids_of(event)
     for media_id in media_ids:
         if media_id not in medias:
