@@ -28,7 +28,6 @@ def _media_ids_of(event: dict) -> set[str]:
         ids.update(gallery.get("media", []))
     return ids
 
-
 def submit_selection(event: dict, actor_id: str, media_ids: list, service_codes: list) -> dict:
     """Validate a client's selection and record it on the event.
 
