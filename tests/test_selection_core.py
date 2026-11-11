@@ -40,10 +40,19 @@ def test_a_rejected_choice_does_not_change_the_situation(sample_event):
     assert sample_event["selections"] == []
 
 
-@pytest.mark.req("REQ-SEL-05")     
+@pytest.mark.req("REQ-SEL-05")
 def test_duplicate_items_are_rejected(sample_event):     
     with pytest.raises(selection_core.SelectionError) as err:     
         selection_core.submit_selection(     
-            sample_event, "cli_100", ["med_1", "med_1"], ["add_to_album"])     
+            sample_event, "cli_100", ["med_1", "med_1"], ["add_to_album"])
  
     assert err.value.code == "DUPLICATE_MEDIA"
+
+
+@pytest.mark.req("REQ-SEL-06")
+def test_only_the_client_for_the_event_is_authorized_to_choose(sample_event):
+    with pytest.raises(selection_core.SelectionError) as err:     
+        selection_core.submit_selection(     
+            sample_event, "cli_200", ["med_1"], ["add_to_album"])
+
+    assert err.value.code == "FORBIDDEN"
