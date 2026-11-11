@@ -30,6 +30,16 @@ def test_media_from_another_event_is_rejected(sample_event):
 def test_available_services_lists_enabled_services_only(sample_event):
     assert selection_core.available_services(sample_event) == ["add_to_album"]
 
+
+@pytest.mark.req("REQ-SEL-04")
+def test_a_rejected_choice_does_not_change_the_situation(sample_event):
+    with pytest.raises(selection_core.SelectionError) as err:
+        selection_core.submit_selection(
+            sample_event, "cli_100", [], ["add_to_album"])
+
+    assert sample_event["selections"] == []
+
+
 @pytest.mark.req("REQ-SEL-05")     
 def test_duplicate_items_are_rejected(sample_event):     
     with pytest.raises(selection_core.SelectionError) as err:     
