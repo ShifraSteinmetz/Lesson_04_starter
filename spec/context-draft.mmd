@@ -1,0 +1,9 @@
+%% תרשים הקשר — טיוטה עם שגיאות. מצאי לפחות שלוש בעיות ושמרי גרסה מתוקנת בשם context.mmd
+flowchart LR
+  client[לקוחה] --> platform[פלטפורמת האירועים]
+  lead[צלמת ראשית] --> platform
+  client --> files[(אחסון קבצים)]
+  subgraph platform_box[גבול המערכת]
+    platform
+    email[שירות דוא"ל]
+  end

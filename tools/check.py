@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 from tools._console import bad, info, ok, setup_console
-from tools.structure_checks import check_decision_log, check_spec
+from tools.structure_checks import check_constitution, check_decision_log, check_spec
 
 ROOT = Path(__file__).resolve().parent.parent
 RULE = "הבדיקה הזו תלויה במימוש שלך ולא בדרישה. השתמשי רק במודול שהמפגש מציין ובכלים שסופקו."
@@ -86,6 +86,12 @@ def main() -> int:
     if cfg.get("decision_log"):
         print(f"\n3. יומן החלטות (decisions/lesson{lesson:02d}.md)")
         for c in check_decision_log(ROOT / "decisions" / f"lesson{lesson:02d}.md"):
+            (ok if c.ok else bad)(c.message)
+            failed |= not c.ok
+
+    if cfg.get("constitution"):
+        print("\n3א. חוקת הפרויקט (spec/constitution.md)")
+        for c in check_constitution(ROOT / "spec" / "constitution.md"):
             (ok if c.ok else bad)(c.message)
             failed |= not c.ok
 

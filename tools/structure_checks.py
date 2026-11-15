@@ -164,6 +164,23 @@ def check_spec(spec_path: Path) -> list[Check]:
     return checks
 
 
+CONSTITUTION_MIN_RULES = 6
+
+
+def check_constitution(path: Path) -> list[Check]:
+    """spec/constitution.md: numbered project rules C-1, C-2, ... each with a reason line (Why: / למה:)."""
+    if not path.exists():
+        return [Check("constitution_exists", False, f"הקובץ {path.parent.name}/{path.name} לא קיים")]
+    text = path.read_text(encoding="utf-8")
+    rules = _chunks(text, "C")
+    no_reason = [i for i, c in rules.items() if not re.search(r"(?im)^\s*[-*]?\s*\**\s*(why|למה)\s*\**\s*:", c)]
+    ok = len(rules) >= CONSTITUTION_MIN_RULES and not no_reason
+    msg = f"{len(rules)} כללים בחוקה (נדרשים לפחות {CONSTITUTION_MIN_RULES}, כל אחד עם שורת Why: או למה:)"
+    if no_reason:
+        msg += f"; בלי נימוק: {', '.join(no_reason)}"
+    return [Check("constitution_rules", ok, msg)]
+
+
 def check_decision_log(path: Path) -> list[Check]:
     if not path.exists():
         return [Check("decision_log_exists", False, f"הקובץ {path.parent.name}/{path.name} לא קיים")]

@@ -1,6 +1,6 @@
 """Environment check. Run: python -m tools.doctor
 
-Checks Python 3.12, an active virtual environment, pinned packages,
+Checks Python 3.14 (the course version), an active virtual environment, pinned packages,
 UTF-8 mode, the SQLite version (STRICT tables need 3.37+) and time zone data.
 """
 import importlib.metadata as md
@@ -13,6 +13,7 @@ from tools._console import bad, info, ok, setup_console
 
 ROOT = Path(__file__).resolve().parent.parent
 MIN_SQLITE = (3, 37, 0)
+COURSE_PYTHON = (3, 14)
 
 
 def _pins(path: Path, seen: set) -> list[tuple[str, str]]:
@@ -40,11 +41,11 @@ def _pins(path: Path, seen: set) -> list[tuple[str, str]]:
 
 def check_python() -> bool:
     v = sys.version_info
-    if (v.major, v.minor) == (3, 12):
+    if (v.major, v.minor) == COURSE_PYTHON:
         ok(f"Python {v.major}.{v.minor}.{v.micro}")
         return True
-    bad(f"Python {v.major}.{v.minor} — הקורס דורש 3.12")
-    info("תיקון: למחוק את .venv וליצור מחדש:  py -3.12 -m venv .venv")
+    bad(f"Python {v.major}.{v.minor} — הקורס דורש {COURSE_PYTHON[0]}.{COURSE_PYTHON[1]}")
+    info(f"תיקון: למחוק את .venv וליצור מחדש:  py -{COURSE_PYTHON[0]}.{COURSE_PYTHON[1]} -m venv .venv")
     return False
 
 
@@ -53,7 +54,7 @@ def check_venv() -> bool:
         ok(f"סביבה וירטואלית: {sys.prefix}")
         return True
     bad("לא רצה מתוך סביבה וירטואלית")
-    info("תיקון: להריץ כך:  .venv\\Scripts\\python -m tools.doctor")
+    info("תיקון: להפעיל את הסביבה:  .venv\\Scripts\\Activate  ואז להריץ שוב")
     return False
 
 
@@ -72,7 +73,7 @@ def check_packages() -> bool:
     if good:
         ok("כל החבילות מותקנות בגרסאות הנכונות")
     else:
-        info("תיקון:  .venv\\Scripts\\python -m pip install -r requirements-dev.txt")
+        info("תיקון (בסביבה מופעלת):  python -m pip install -r requirements-dev.txt")
     return good
 
 
@@ -93,7 +94,7 @@ def check_sqlite() -> bool:
         ok(f"SQLite {sqlite3.sqlite_version}")
         return True
     bad(f"SQLite {sqlite3.sqlite_version} ישן מדי (נדרש 3.37 ומעלה עד מפגש 9)")
-    info("לא חוסם עכשיו. לדווח לטכנאי המעבדה: נדרשת התקנה עדכנית של Python 3.12.")
+    info("לא חוסם עכשיו. לדווח לטכנאי המעבדה: נדרשת התקנה עדכנית של Python.")
     return True  # not blocking before lesson 9
 
 
@@ -104,7 +105,7 @@ def check_timezones() -> bool:
         ZoneInfo("Asia/Jerusalem")
     except Exception as exc:  # noqa: BLE001 - report any failure to the student
         bad(f"נתוני אזורי זמן חסרים ({exc.__class__.__name__})")
-        info("תיקון:  .venv\\Scripts\\python -m pip install -r requirements-dev.txt  (החבילה tzdata)")
+        info("תיקון (בסביבה מופעלת):  python -m pip install -r requirements-dev.txt  (החבילה tzdata)")
         return False
     ok("אזורי זמן (Asia/Jerusalem)")
     return True
@@ -116,7 +117,7 @@ def main() -> int:
     results = [check_python(), check_venv(), check_packages(), check_utf8(), check_sqlite(), check_timezones()]
     print()
     if all(results):
-        print("הכול תקין. השלב הבא:  .venv\\Scripts\\python -m pytest")
+        print("הכול תקין. השלב הבא:  python -m pytest")
         return 0
     print("יש מה לתקן (ראי למעלה). אחרי התיקון, להריץ שוב את doctor.")
     return 1
